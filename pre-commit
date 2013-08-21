@@ -1,0 +1,22 @@
+#!/usr/bin/php
+<?php
+ 
+chdir( __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR .'..'.DIRECTORY_SEPARATOR );
+$oFinfo = new finfo(FILEINFO_MIME_TYPE);
+ 
+foreach( explode("\n", shell_exec('git diff --staged --name-only') ) as $filename)
+{
+    if( $filename = trim($filename) )
+    {
+        if( $oFinfo->buffer( shell_exec('git show :'.$filename) ) == 'text/x-php' )
+        {
+            $r = $o = NULL;
+            $output = exec('git show :'.$filename.' | php -l', $o, $r);
+            if( $r )
+            {
+                echo $output.' '.$filename."\r\n";
+                exit(1);
+            }
+        }
+    }
+}
